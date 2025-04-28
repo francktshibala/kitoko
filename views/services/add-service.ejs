@@ -1,0 +1,110 @@
+<!-- Content Heading -->
+<h1><%= title %></h1>
+
+<!-- Message Block for displaying flash messages -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block for validation errors -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<!-- Service Form -->
+<div class="form-container">
+  <form id="add-service-form" action="/services/add-service" method="post">
+    <div class="form-group">
+      <label for="category_id">Category:</label>
+      <%- categorySelect %>
+    </div>
+    
+    <div class="form-group">
+      <label for="service_name">Service Name:</label>
+      <input type="text" id="service_name" name="service_name" required 
+             value="<%= locals.service_name ? service_name : '' %>"
+             minlength="2" maxlength="100">
+    </div>
+    
+    <div class="form-group">
+      <label for="service_description">Service Description:</label>
+      <textarea id="service_description" name="service_description" rows="6" required
+                minlength="10" maxlength="2000"><%= locals.service_description ? service_description : '' %></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="service_price">Base Price ($):</label>
+      <input type="number" id="service_price" name="service_price" required 
+             value="<%= locals.service_price ? service_price : '' %>"
+             min="0.01" step="0.01">
+      <p class="form-help">Enter the starting price for this service.</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="service_image">Service Image Path:</label>
+      <input type="text" id="service_image" name="service_image" 
+             value="<%= locals.service_image ? service_image : '/images/services/default.jpg' %>"
+             maxlength="255">
+    </div>
+    
+    <div class="form-group">
+      <label for="service_thumbnail">Service Thumbnail Path:</label>
+      <input type="text" id="service_thumbnail" name="service_thumbnail" 
+             value="<%= locals.service_thumbnail ? service_thumbnail : '/images/services/default-tn.jpg' %>"
+             maxlength="255">
+    </div>
+    
+    <div class="guest-range">
+      <div class="form-group">
+        <label for="min_guests">Minimum Guests:</label>
+        <input type="number" id="min_guests" name="min_guests" 
+               value="<%= locals.min_guests ? min_guests : '0' %>"
+               min="0">
+      </div>
+      
+      <div class="form-group">
+        <label for="max_guests">Maximum Guests:</label>
+        <input type="number" id="max_guests" name="max_guests" 
+               value="<%= locals.max_guests ? max_guests : '' %>"
+               min="1">
+        <p class="form-help">Leave blank if there is no maximum.</p>
+      </div>
+    </div>
+    
+    <div class="form-buttons">
+      <button type="submit" class="btn">Add Service</button>
+      <a href="/services/management" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- Client-side validation -->
+<script>
+  document.getElementById('add-service-form').addEventListener('submit', function(event) {
+    // Validate price
+    const priceInput = document.getElementById('service_price');
+    if (isNaN(priceInput.value) || parseFloat(priceInput.value) <= 0) {
+      event.preventDefault();
+      alert('Please enter a valid price (greater than 0).');
+    }
+    
+    // Validate min/max guests
+    const minGuestsInput = document.getElementById('min_guests');
+    const maxGuestsInput = document.getElementById('max_guests');
+    
+    if (maxGuestsInput.value !== '' && parseInt(minGuestsInput.value) > parseInt(maxGuestsInput.value)) {
+      event.preventDefault();
+      alert('Maximum guests must be greater than or equal to minimum guests.');
+    }
+  });
+</script>

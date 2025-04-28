@@ -1,0 +1,58 @@
+<!-- Registration View -->
+<h1>Create an Account</h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<!-- Registration Form -->
+<div class="form-container">
+  <form id="registrationForm" action="/account/register" method="post">
+    <div class="form-group">
+      <label for="account_firstname">First Name:</label>
+      <input type="text" id="account_firstname" name="account_firstname" required value="<%= locals.account_firstname ? account_firstname : '' %>">
+    </div>
+    
+    <div class="form-group">
+      <label for="account_lastname">Last Name:</label>
+      <input type="text" id="account_lastname" name="account_lastname" required value="<%= locals.account_lastname ? account_lastname : '' %>">
+    </div>
+    
+    <div class="form-group">
+      <label for="account_email">Email:</label>
+      <input type="email" id="account_email" name="account_email" required value="<%= locals.account_email ? account_email : '' %>">
+    </div>
+    
+    <div class="form-group">
+      <label for="account_phone">Phone (Optional):</label>
+      <input type="tel" id="account_phone" name="account_phone" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" value="<%= locals.account_phone ? account_phone : '' %>">
+      <p class="form-help">Format: 123-456-7890</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="account_password">Password:</label>
+      <input type="password" id="account_password" name="account_password" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$">
+      <p class="form-help">Passwords must be at least 8 characters and contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character</p>
+    </div>
+    
+    <button type="submit" class="btn">Register</button>
+  </form>
+  
+  <p>Already have an account? <a href="/account/login">Login</a></p>
+</div>

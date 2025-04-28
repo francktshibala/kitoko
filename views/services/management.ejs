@@ -1,0 +1,35 @@
+<!-- Content Heading -->
+<h1><%= title %></h1>
+
+<!-- Message Block for displaying flash messages -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Management Links -->
+<div class="management-links">
+  <h2>Services Management Options</h2>
+  <div class="management-grid">
+    <div class="management-card">
+      <h3>Service Categories</h3>
+      <a href="/services/add-category" class="btn">Add New Category</a>
+      <!-- Future link to edit categories will go here -->
+    </div>
+    
+    <div class="management-card">
+      <h3>Services</h3>
+      <a href="/services/add-service" class="btn">Add New Service</a>
+      <!-- Future link to edit services will go here -->
+    </div>
+    
+    <div class="management-card">
+      <h3>Service Options</h3>
+      <a href="/services/add-option" class="btn">Add New Option</a>
+      <!-- Future link to edit options will go here -->
+    </div>
+  </div>
+</div>

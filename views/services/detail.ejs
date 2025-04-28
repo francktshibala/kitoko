@@ -1,0 +1,32 @@
+<!-- Content Heading -->
+<h1><%= title %></h1>
+
+<!-- Message Block for displaying flash messages -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Service Detail Display -->
+<%- serviceHTML %>
+
+<!-- Booking Actions -->
+<div class="booking-actions">
+  <h2>Ready to Book?</h2>
+  <p>Contact us to check availability and reserve this service for your special event.</p>
+  
+  <div class="action-buttons">
+    <% if (loggedin) { %>
+      <a href="/bookings/request/<%= serviceData.service_id %>" class="btn">Request a Booking</a>
+    <% } else { %>
+      <a href="/account/login?redirect=/services/detail/<%= serviceData.service_id %>" class="btn">Login to Book</a>
+      <span class="or-text">or</span>
+      <a href="/contact" class="btn btn-secondary">Contact Us</a>
+    <% } %>
+  </div>
+</div>
+
+<!-- Related Services will be added later -->

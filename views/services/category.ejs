@@ -1,0 +1,14 @@
+<!-- Content Heading -->
+<h1><%= title %></h1>
+
+<!-- Message Block for displaying flash messages -->
+<% if (messages) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Services Grid Display -->
+<%- servicesGrid %>

@@ -1,0 +1,142 @@
+<!-- Hero Banner -->
+<div class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Create Unforgettable Moments</h1>
+      <p>Exceptional event decoration and catering services for your special occasions</p>
+      <a href="#services" class="btn">Explore Our Services</a>
+    </div>
+  </div>
+  
+  <!-- Featured Services Section -->
+  <section id="services" class="section featured-services">
+    <div class="section-header">
+      <h2>Our Services</h2>
+      <p>From elegant weddings to corporate events, we offer comprehensive services to make your event memorable</p>
+    </div>
+    
+    <div class="services-preview">
+      <% if (featuredServices && featuredServices.length > 0) { %>
+        <% featuredServices.forEach(service => { %>
+          <div class="service-preview-card">
+            <img src="<%= service.service_thumbnail %>" alt="<%= service.service_name %>" class="preview-image">
+            <div class="preview-content">
+              <h3><%= service.service_name %></h3>
+              <p class="preview-price"><%= utilities.formatCurrency(service.service_price) %></p>
+              <p class="preview-category"><%= service.category_name %></p>
+              <a href="/services/detail/<%= service.service_id %>" class="btn">View Details</a>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>Featured services coming soon!</p>
+      <% } %>
+    </div>
+    
+    <div class="section-footer">
+      <a href="/services/category/1" class="btn">View All Services</a>
+    </div>
+  </section>
+  
+  <!-- Why Choose Us Section -->
+  <section class="section why-choose-us">
+    <div class="section-header">
+      <h2>Why Choose EventElegance</h2>
+      <p>We're dedicated to making your special events truly unforgettable</p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🌟</div>
+        <h3>Exceptional Quality</h3>
+        <p>We use only the finest materials and ingredients to ensure your event stands out.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🧩</div>
+        <h3>Customized Experience</h3>
+        <p>Every service is tailored to match your unique vision and requirements.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <h3>Professional Team</h3>
+        <p>Our experienced staff ensures flawless execution from planning to cleanup.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">💖</div>
+        <h3>Attention to Detail</h3>
+        <p>We believe that the smallest details make the biggest difference.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Testimonials Section -->
+  <section class="section testimonials">
+    <div class="section-header">
+      <h2>What Our Clients Say</h2>
+      <p>Hear from those who've experienced our services</p>
+    </div>
+    
+    <div class="testimonial-slider">
+      <% if (testimonials && testimonials.length > 0) { %>
+        <% testimonials.forEach(testimonial => { %>
+          <div class="testimonial-card">
+            <div class="testimonial-rating">
+              <% for(let i = 1; i <= 5; i++) { %>
+                <span class="star <%= i <= testimonial.review_rating ? 'filled' : '' %>">★</span>
+              <% } %>
+            </div>
+            <p class="testimonial-text">"<%= testimonial.review_text.length > 150 ? testimonial.review_text.substring(0, 150) + '...' : testimonial.review_text %>"</p>
+            <div class="testimonial-author">
+              <p><%= testimonial.account_firstname %> <%= testimonial.account_lastname %></p>
+              <p class="testimonial-service"><%= testimonial.service_name %></p>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="no-testimonials">Testimonials coming soon!</p>
+      <% } %>
+    </div>
+  </section>
+  
+  <!-- Gallery Preview Section -->
+  <section class="section gallery-preview">
+    <div class="section-header">
+      <h2>Our Work</h2>
+      <p>A glimpse of our previous events</p>
+    </div>
+    
+    <div class="gallery-grid">
+      <% if (galleryImages && galleryImages.length > 0) { %>
+        <% galleryImages.forEach(image => { %>
+          <div class="gallery-item">
+            <img src="<%= image.image_path %>" alt="<%= image.image_title || 'Event image' %>">
+            <div class="gallery-overlay">
+              <h3><%= image.image_title || 'Event decoration' %></h3>
+              <p><%= image.service_name %></p>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="no-gallery">Gallery images coming soon!</p>
+      <% } %>
+    </div>
+    
+    <div class="section-footer">
+      <a href="/gallery" class="btn">View Full Gallery</a>
+    </div>
+  </section>
+  
+  <!-- Call to Action Section -->
+  <section class="section cta">
+    <div class="cta-content">
+      <h2>Ready to Plan Your Event?</h2>
+      <p>Contact us today to discuss how we can make your special day unforgettable</p>
+      <div class="cta-buttons">
+        <a href="/contact" class="btn">Contact Us</a>
+        <a href="/services/category/1" class="btn btn-secondary">Browse Services</a>
+      </div>
+    </div>
+  </section>

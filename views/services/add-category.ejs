@@ -1,0 +1,53 @@
+<!-- Content Heading -->
+<h1><%= title %></h1>
+
+<!-- Message Block for displaying flash messages -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block for validation errors -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<!-- Category Form -->
+<div class="form-container">
+  <form id="add-category-form" action="/services/add-category" method="post">
+    <div class="form-group">
+      <label for="category_name">Category Name:</label>
+      <input type="text" id="category_name" name="category_name" required 
+             value="<%= locals.category_name ? category_name : '' %>"
+             minlength="2" maxlength="50">
+    </div>
+    
+    <div class="form-group">
+      <label for="category_description">Category Description:</label>
+      <textarea id="category_description" name="category_description" rows="4" 
+                maxlength="1000"><%= locals.category_description ? category_description : '' %></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="category_image">Category Image Path:</label>
+      <input type="text" id="category_image" name="category_image" 
+             value="<%= locals.category_image ? category_image : '/images/categories/default.jpg' %>"
+             maxlength="255">
+      <p class="form-help">Enter the path to an image file or leave the default.</p>
+    </div>
+    
+    <div class="form-buttons">
+      <button type="submit" class="btn">Add Category</button>
+      <a href="/services/management" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>

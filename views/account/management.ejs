@@ -1,0 +1,17 @@
+<!-- Account Management View -->
+<h1>Account Management</h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Account Management Content -->
+<div class="account-management">
+  <!-- Welcome Message -->
+  <div class="account-welcome">
+    <h2>Welcome, <%= account_firstname %></h2>
