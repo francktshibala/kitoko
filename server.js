@@ -93,5 +93,5 @@ const host = process.env.HOST || 'localhost';
  * Log statement to confirm server operation
  *************************/
 app.listen(port, () => {
-  console.log(`EventElegance app listening on ${host}:${port}`);
+  console.log(`Kitoko app listening on ${host}:${port}`);
 });
