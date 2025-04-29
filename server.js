@@ -51,7 +51,7 @@ app.use(utilities.checkJWTToken);
 // Pass nav to all views
 app.use(async (req, res, next) => {
   // Add navigation to all views
-  req.nav = await utilities.getNav();
+  req.nav = await utilities.getNav(req);
   
   // Set res.locals.nav for EJS access
   res.locals.nav = req.nav;
@@ -67,6 +67,12 @@ app.use(static);
 
 // Index route
 app.get("/", baseController.buildHome);
+
+// Account routes
+app.use("/account", require("./routes/accountRoute"));
+
+// Service routes
+app.use("/services", require("./routes/services"));
 
 // API routes
 app.use('/api', apiRoutes);

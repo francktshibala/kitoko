@@ -1,11 +1,11 @@
 const { Pool } = require("pg")
 require("dotenv").config()
 
-// Create a pool with configuration for remote Render database
+// Create a pool with configuration for remote database
 const pool = new Pool({
   connectionString: process.env.CONNECTION_STRING,
   ssl: {
-    rejectUnauthorized: false // Required for Render PostgreSQL
+    rejectUnauthorized: false // Required for some PostgreSQL providers
   },
   // Add connection timeout
   connectionTimeoutMillis: 10000, // Increased for remote connection
@@ -21,10 +21,10 @@ pool.connect((err, client, release) => {
     console.error('Database connection error:', err.message)
     console.error('Please check that:')
     console.error('1. Your CONNECTION_STRING in .env is correct')
-    console.error('2. The database exists on Render')
-    console.error('3. Network connectivity to Render is available')
+    console.error('2. The database exists on your PostgreSQL server')
+    console.error('3. Network connectivity to the database server is available')
   } else {
-    console.log('Successfully connected to Render PostgreSQL database')
+    console.log('Successfully connected to PostgreSQL database')
     release()
   }
 })
@@ -39,7 +39,7 @@ module.exports = {
       console.log('Executed query', { text, duration, rows: res.rowCount })
       return res
     } catch (error) {
-      console.error('Error in query', { text })
+      console.error('Error in query', { text, error: error.message })
       throw error
     }
   },

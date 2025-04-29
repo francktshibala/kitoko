@@ -11,20 +11,39 @@ Util.getNav = async function (req, res, next) {
     let data = await serviceModel.getCategories()
     let list = "<ul>"
     list += '<li><a href="/" title="Home page">Home</a></li>'
-    data.rows.forEach((row) => {
-      list += "<li>"
-      list +=
-        '<a href="/services/category/' +
-        row.category_id +
-        '" title="See our ' +
-        row.category_name +
-        ' services">' +
-        row.category_name +
-        "</a>"
-      list += "</li>"
-    })
+    
+    // Make sure we're accessing the data correctly
+    if(data && data.rows && data.rows.length > 0) {
+      data.rows.forEach((row) => {
+        list += "<li>"
+        list +=
+          '<a href="/services/category/' +
+          row.category_id +
+          '" title="See our ' +
+          row.category_name +
+          ' services">' +
+          row.category_name +
+          "</a>"
+        list += "</li>"
+      })
+    }
+    
     list += '<li><a href="/gallery" title="View our gallery">Gallery</a></li>'
     list += '<li><a href="/contact" title="Contact us">Contact</a></li>'
+    
+    // Add management link for employees and admins if user is logged in
+    if (req && req.cookies && req.cookies.jwt) {
+      try {
+        const token = req.cookies.jwt;
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        if (decoded.account_type === 'Admin' || decoded.account_type === 'Employee') {
+          list += '<li><a href="/services/management" title="Service Management">Management</a></li>';
+        }
+      } catch (error) {
+        console.error("Error checking JWT for nav:", error.message);
+      }
+    }
+    
     list += "</ul>"
     return list
   } catch (error) {

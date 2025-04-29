@@ -11,12 +11,13 @@ function generateToken(accountData) {
     account_id: accountData.account_id,
     account_email: accountData.account_email,
     account_type: accountData.account_type,
-    account_firstname: accountData.account_firstname
+    account_firstname: accountData.account_firstname,
+    account_lastname: accountData.account_lastname
   }
   
   return jwt.sign(
     data, 
-    process.env.JWT_SECRET, 
+    process.env.ACCESS_TOKEN_SECRET, 
     { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
   );
 }
@@ -28,8 +29,9 @@ function generateToken(accountData) {
  */
 function verifyToken(token) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   } catch (error) {
+    console.error("JWT verification error:", error.message);
     return null;
   }
 }

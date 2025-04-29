@@ -71,62 +71,50 @@ async function accountLoginAPI(req, res) {
   }
   
   /* ****************************************
-  *  Process login
-  * *************************************** */
-  async function accountLogin(req, res) {
-    let nav = await utilities.getNav()
-    const { account_email, account_password, redirect } = req.body
+*  Process login
+* *************************************** */
+async function accountLogin(req, res) {
+  let nav = await utilities.getNav()
+  const { account_email, account_password, redirect } = req.body
+  
+  try {
+    const accountData = await accountModel.getAccountByEmail(account_email)
     
-    try {
-      const accountData = await accountModel.getAccountByEmail(account_email)
+    if (!accountData) {
+      req.flash("notice", "Please check your credentials and try again.")
+      res.status(400).render("account/login", {
+        title: "Login",
+        nav,
+        errors: null,
+        messages: req.flash("notice"),
+        account_email,
+        redirect
+      })
+      return
+    }
       
-      if (!accountData) {
-        req.flash("notice", "Please check your credentials and try again.")
-        res.status(400).render("account/login", {
-          title: "Login",
-          nav,
-          errors: null,
-          messages: req.flash("notice"),
-          account_email,
-          redirect
-        })
-        return
-      }
+       // Check password
+    const passwordMatch = await bcrypt.compare(account_password, accountData.account_password)
+    
+    if (passwordMatch) {
+      // Remove the password before storing in JWT
+      delete accountData.account_password
       
-      // Check password
-      const passwordMatch = await bcrypt.compare(account_password, accountData.account_password)
+      // Create JWT
+      const accessToken = jwt.sign(
+        accountData, 
+        process.env.ACCESS_TOKEN_SECRET, 
+        { expiresIn: 3600 }
+      )
       
-      if (passwordMatch) {
-        // Remove the password before storing in JWT
-        delete accountData.account_password
-        
-        // Create JWT
-        const accessToken = jwt.sign(
-          accountData, 
-          process.env.ACCESS_TOKEN_SECRET, 
-          { expiresIn: 3600 }
-        )
-        
-        // Set cookie
-        res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
-        
-        // Redirect to specified path or account management
-        return res.redirect(redirect || "/account/")
-      } else {
-        req.flash("notice", "Please check your credentials and try again.")
-        res.status(400).render("account/login", {
-          title: "Login",
-          nav,
-          errors: null,
-          messages: req.flash("notice"),
-          account_email,
-          redirect
-        })
-      }
-    } catch (error) {
-      console.error("Login error:", error)
-      req.flash("notice", "An error occurred during login. Please try again later.")
-      res.status(500).render("account/login", {
+      // Set cookie
+      res.cookie("jwt", accessToken, { httpOnly: true, maxAge: 3600 * 1000 })
+      
+      // Redirect to specified path or account management
+      return res.redirect(redirect || "/account/")
+    } else {
+      req.flash("notice", "Please check your credentials and try again.")
+      res.status(400).render("account/login", {
         title: "Login",
         nav,
         errors: null,
@@ -135,7 +123,19 @@ async function accountLoginAPI(req, res) {
         redirect
       })
     }
+  } catch (error) {
+    console.error("Login error:", error)
+    req.flash("notice", "An error occurred during login. Please try again later.")
+    res.status(500).render("account/login", {
+      title: "Login",
+      nav,
+      errors: null,
+      messages: req.flash("notice"),
+      account_email,
+      redirect
+    })
   }
+}
   
   /* ****************************************
   *  Process logout
