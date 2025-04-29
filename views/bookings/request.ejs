@@ -1,0 +1,45 @@
+<!-- Booking Request Form -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<!-- Service Info -->
+<div class="service-summary">
+  <div class="service-summary-image">
+    <img src="<%= service.service_image %>" alt="<%= service.service_name %>">
+  </div>
+  <div class="service-summary-details">
+    <h2><%= service.service_name %></h2>
+    <p class="service-price">Starting at: <%= utilities.formatCurrency(service.service_price) %></p>
+    <p class="service-category">Category: <%= service.category_name %></p>
+    <p class="service-guests">For <%= service.min_guests || 0 %> to <%= service.max_guests || 'unlimited' %> guests</p>
+  </div>
+</div>
+
+<!-- Booking Form -->
+<div class="form-container booking-form">
+  <form id="bookingRequestForm" action="/bookings/request" method="post">
+    <!-- Hidden service_id field -->
+    <input type="hidden" name="service_id" value="<%= service.service_id %>">
+    
+    <div class="form-group">
+      <label for="event_date">Event Date:</label>
+      <input type="date
