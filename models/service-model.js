@@ -238,6 +238,25 @@ async function getServiceOptionById(option_id) {
   }
 }
 
+/* ***************************
+ *  Get all services
+ * ************************** */
+async function getAllServices() {
+  try {
+    const data = await pool.query(
+      `SELECT s.*, c.category_name 
+       FROM public.service AS s
+       JOIN public.service_category AS c 
+       ON s.category_id = c.category_id 
+       ORDER BY s.service_name`
+    )
+    return data.rows
+  } catch (error) {
+    console.error("getAllServices error: " + error)
+    return []
+  }
+}
+
 // Add this function to the module.exports object in your existing service-model.js file
 // module.exports = {
 //   ...existing exports,
@@ -254,5 +273,6 @@ module.exports = {
   getFeaturedServices,
   getTestimonials,
   getFeaturedGalleryImages,
-  getServiceOptionById
+  getServiceOptionById,
+  getAllServices
 }

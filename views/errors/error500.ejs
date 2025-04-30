@@ -3,9 +3,19 @@
     <h1>500 - Server Error</h1>
     <div class="error-icon">😨</div>
     <p><%- message %></p>
-    <p>We're experiencing some technical difficulties. Please try again later or contact support if the problem persists.</p>
+    
+    <% if (details) { %>
+      <div class="error-details">
+        <h3>Technical Details</h3>
+        <pre><%= details %></pre>
+      </div>
+    <% } else { %>
+      <p>We're experiencing some technical difficulties. Please try again later or contact support if the problem persists.</p>
+    <% } %>
+    
     <div class="error-actions">
       <a href="/" class="btn">Return to Home</a>
+      <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
     </div>
   </div>
   
@@ -13,16 +23,47 @@
     .error-container {
       text-align: center;
       padding: 3rem 1rem;
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
     }
     
     .error-icon {
       font-size: 4rem;
       margin: 1rem 0;
+      color: #d63031;
+    }
+    
+    .error-details {
+      margin: 2rem 0;
+      text-align: left;
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #d63031;
+      overflow: auto;
+    }
+    
+    .error-details pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-size: 0.8rem;
+      line-height: 1.4;
     }
     
     .error-actions {
       margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    @media (max-width: 768px) {
+      .error-actions {
+        flex-direction: column;
+      }
+      
+      .error-actions .btn {
+        width: 100%;
+      }
     }
   </style>

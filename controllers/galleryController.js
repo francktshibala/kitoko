@@ -9,16 +9,24 @@ const multer = require("multer")
 /* Set up storage for file uploads */
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./public/images/uploads")
+    // Ensure directory exists
+    const uploadDir = "./public/images/uploads";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir)
   },
   filename: function (req, file, cb) {
+    // Generate safer filename
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname))
+    const ext = path.extname(file.originalname)
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext)
   }
 })
 
 /* Set up file filter to only accept images */
 const fileFilter = (req, file, cb) => {
+  // Check if file is an image
   if (file.mimetype.startsWith("image/")) {
     cb(null, true)
   } else {
@@ -136,8 +144,12 @@ galleryController.buildUploadForm = async function (req, res, next) {
  * ************************** */
 galleryController.uploadImage = async function (req, res, next) {
   try {
+    console.log("Starting image upload process");
+    
     // Get form data
     const { service_id, image_title, image_description, is_featured } = req.body
+    console.log("Form data received:", { service_id, image_title, is_featured });
+    
     const featured = is_featured ? true : false
     
     // Check if a file was uploaded
@@ -146,7 +158,9 @@ galleryController.uploadImage = async function (req, res, next) {
       return res.redirect("/gallery/upload")
     }
     
-    // Optimize and resize the uploaded image
+    console.log("File uploaded:", req.file.path);
+    
+    // Create necessary directories
     const originalPath = req.file.path
     const fileName = path.basename(originalPath)
     const optimizedDir = path.join("./public/images/gallery")
@@ -155,45 +169,68 @@ galleryController.uploadImage = async function (req, res, next) {
     // Create directories if they don't exist
     if (!fs.existsSync(optimizedDir)) {
       fs.mkdirSync(optimizedDir, { recursive: true })
+      console.log("Created directory:", optimizedDir);
     }
     if (!fs.existsSync(thumbnailDir)) {
       fs.mkdirSync(thumbnailDir, { recursive: true })
+      console.log("Created directory:", thumbnailDir);
     }
     
-    // Resize and optimize the image
-    const optimizedPath = path.join(optimizedDir, fileName)
-    await sharp(originalPath)
-      .resize(1200, 800, { fit: "inside", withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toFile(optimizedPath)
-    
-    // Create a thumbnail
-    const thumbnailPath = path.join(thumbnailDir, fileName)
-    await sharp(originalPath)
-      .resize(400, 300, { fit: "cover" })
-      .jpeg({ quality: 70 })
-      .toFile(thumbnailPath)
-    
-    // Delete the original upload
-    fs.unlinkSync(originalPath)
-    
-    // Store the path relative to public directory
-    const dbImagePath = "/images/gallery/" + fileName
-    
-    // Add image to database
-    const result = await galleryModel.addImage(
-      service_id,
-      dbImagePath,
-      image_title,
-      image_description,
-      featured
-    )
-    
-    if (result) {
-      req.flash("notice", "Image uploaded successfully")
-      return res.redirect("/gallery/management")
-    } else {
-      req.flash("notice", "Upload failed, please try again")
+    console.log("Processing image with sharp");
+    try {
+      // Resize and optimize the image
+      const optimizedPath = path.join(optimizedDir, fileName)
+      await sharp(originalPath)
+        .resize(1200, 800, { fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toFile(optimizedPath)
+      
+      console.log("Main image processed:", optimizedPath);
+      
+      // Create a thumbnail
+      const thumbnailPath = path.join(thumbnailDir, fileName)
+      await sharp(originalPath)
+        .resize(400, 300, { fit: "cover" })
+        .jpeg({ quality: 70 })
+        .toFile(thumbnailPath)
+      
+      console.log("Thumbnail processed:", thumbnailPath);
+      
+      // WINDOWS FIX: Instead of deleting the original upload, just keep it
+      // This avoids the EPERM: operation not permitted error on Windows
+      // The uploaded files will be cleaned up by the system later or can be handled by a maintenance script
+      // Comment out the deletion for now:
+      /*
+      if (fs.existsSync(optimizedPath) && fs.existsSync(thumbnailPath)) {
+        fs.unlinkSync(originalPath)
+        console.log("Original file deleted");
+      }
+      */
+      
+      // Store the path relative to public directory
+      const dbImagePath = "/images/gallery/" + fileName
+      
+      console.log("Adding image to database:", dbImagePath);
+      
+      // Add image to database
+      const result = await galleryModel.addImage(
+        service_id,
+        dbImagePath,
+        image_title,
+        image_description,
+        featured
+      )
+      
+      if (result) {
+        req.flash("notice", "Image uploaded successfully")
+        return res.redirect("/gallery/management")
+      } else {
+        req.flash("notice", "Upload failed, please try again")
+        return res.redirect("/gallery/upload")
+      }
+    } catch (sharpError) {
+      console.error("Error processing image with Sharp:", sharpError)
+      req.flash("notice", "Error processing image: " + sharpError.message)
       return res.redirect("/gallery/upload")
     }
   } catch (error) {
@@ -283,16 +320,27 @@ galleryController.deleteImage = async function (req, res, next) {
       return res.redirect("/gallery/management")
     }
     
-    // Delete image file from filesystem
+    // WINDOWS FIX: Add try-catch for each file deletion operation
+    // Delete image file from filesystem with error handling
     const imagePath = path.join("./public", image.image_path)
     const thumbnailPath = path.join("./public/images/gallery/thumbnails", path.basename(image.image_path))
     
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath)
+    try {
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath)
+      }
+    } catch (fsError) {
+      console.error("Error deleting main image file:", fsError)
+      // Continue with deletion even if file deletion fails
     }
     
-    if (fs.existsSync(thumbnailPath)) {
-      fs.unlinkSync(thumbnailPath)
+    try {
+      if (fs.existsSync(thumbnailPath)) {
+        fs.unlinkSync(thumbnailPath)
+      }
+    } catch (fsError) {
+      console.error("Error deleting thumbnail file:", fsError)
+      // Continue with deletion even if file deletion fails
     }
     
     // Delete from database

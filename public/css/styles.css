@@ -318,7 +318,7 @@ input:focus, textarea:focus, select:focus {
   position: relative;
   height: 80vh;
   min-height: 500px;
-  background-image: url('/images/hero-bg.jpg');
+  background-image: url('/images/hero/table-setting-3604064_960_720.jpg');  /* Update with your image path */
   background-size: cover;
   background-position: center;
   display: flex;
@@ -329,13 +329,14 @@ input:focus, textarea:focus, select:focus {
   margin-bottom: 4rem;
 }
 
+/* You can adjust these properties for better visual effect */
 .hero-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0,0,0,0.4);  /* Adjust opacity as needed */
 }
 
 .hero-content {
@@ -361,6 +362,21 @@ input:focus, textarea:focus, select:focus {
 .hero .btn {
   padding: 1rem 2rem;
   font-size: 1.1rem;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  .hero {
+    height: 60vh;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.1rem;
+  }
 }
 
 /* Section Styling */
