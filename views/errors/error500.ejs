@@ -1,0 +1,28 @@
+<!-- 500 Error Page -->
+<div class="error-container">
+    <h1>500 - Server Error</h1>
+    <div class="error-icon">😨</div>
+    <p><%- message %></p>
+    <p>We're experiencing some technical difficulties. Please try again later or contact support if the problem persists.</p>
+    <div class="error-actions">
+      <a href="/" class="btn">Return to Home</a>
+    </div>
+  </div>
+  
+  <style>
+    .error-container {
+      text-align: center;
+      padding: 3rem 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .error-icon {
+      font-size: 4rem;
+      margin: 1rem 0;
+    }
+    
+    .error-actions {
+      margin-top: 2rem;
+    }
+  </style>
