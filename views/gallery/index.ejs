@@ -1,0 +1,284 @@
+<!-- Gallery Main View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Gallery Filters -->
+<div class="gallery-filters">
+  <form action="/gallery" method="get" class="filter-form">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="category">Filter by Category:</label>
+        <select id="category" name="category" onchange="this.form.submit()">
+          <option value="">All Categories</option>
+          <% categories.forEach(category => { %>
+            <option value="<%= category.category_id %>" <%= selectedCategory == category.category_id ? 'selected' : '' %>>
+              <%= category.category_name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="service">Filter by Service:</label>
+        <select id="service" name="service" onchange="this.form.submit()">
+          <option value="">All Services</option>
+          <% services.forEach(service => { %>
+            <option value="<%= service.service_id %>" <%= selectedService == service.service_id ? 'selected' : '' %>>
+              <%= service.service_name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn btn-small">Apply Filters</button>
+      <a href="/gallery" class="btn btn-small btn-secondary">Clear Filters</a>
+    </div>
+  </form>
+</div>
+
+<!-- Gallery Grid -->
+<div class="gallery-container">
+  <% if (gallery && gallery.length > 0) { %>
+    <div class="gallery-grid">
+      <% gallery.forEach(image => { %>
+        <div class="gallery-item">
+          <a href="<%= image.image_path %>" class="gallery-link" data-title="<%= image.image_title %>">
+            <img src="<%= image.image_path.replace(/\.[^/.]+$/, '') %>/thumbnails/<%= image.image_path.split('/').pop() %>" 
+                 alt="<%= image.image_title %>" 
+                 loading="lazy">
+            <div class="gallery-overlay">
+              <h3><%= image.image_title %></h3>
+              <p><%= image.service_name %></p>
+            </div>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="gallery-empty">
+      <p>No images found. Please try a different filter or check back later.</p>
+    </div>
+  <% } %>
+</div>
+
+<!-- Lightbox for image viewing -->
+<div id="gallery-lightbox" class="lightbox">
+  <div class="lightbox-content">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-image" src="" alt="">
+    <div class="lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- Gallery CSS -->
+<style>
+  .gallery-filters {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .filter-form {
+    width: 100%;
+  }
+  
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+  
+  .filter-group {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .filter-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .gallery-item {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  }
+  
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .gallery-item:hover img {
+    transform: scale(1.05);
+  }
+  
+  .gallery-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
+  }
+  
+  .gallery-overlay h3 {
+    margin-bottom: 0.25rem;
+    font-size: 1.2rem;
+    color: white;
+  }
+  
+  .gallery-overlay p {
+    font-size: 0.875rem;
+  }
+  
+  .gallery-empty {
+    text-align: center;
+    padding: 3rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  /* Lightbox styles */
+  .lightbox {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    padding: 2rem;
+  }
+  
+  .lightbox-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .lightbox-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  #lightbox-image {
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
+    margin-bottom: 1rem;
+  }
+  
+  .lightbox-caption {
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-row {
+      flex-direction: column;
+    }
+    
+    .filter-group {
+      width: 100%;
+    }
+    
+    .gallery-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+</style>
+
+<!-- Gallery Lightbox JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get lightbox elements
+    const lightbox = document.getElementById('gallery-lightbox');
+    const lightboxImg = document.getElementById('lightbox-image');
+    const lightboxCaption = document.querySelector('.lightbox-caption');
+    const lightboxClose = document.querySelector('.lightbox-close');
+    
+    // Get all gallery links
+    const galleryLinks = document.querySelectorAll('.gallery-link');
+    
+    // Add click event to gallery links
+    galleryLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Set lightbox image source and caption
+        lightboxImg.src = this.href;
+        lightboxCaption.textContent = this.getAttribute('data-title');
+        
+        // Show lightbox
+        lightbox.style.display = 'block';
+      });
+    });
+    
+    // Close lightbox when clicking close button
+    lightboxClose.addEventListener('click', function() {
+      lightbox.style.display = 'none';
+    });
+    
+    // Close lightbox when clicking outside the image
+    lightbox.addEventListener('click', function(e) {
+      if (e.target === lightbox) {
+        lightbox.style.display = 'none';
+      }
+    });
+    
+    // Close lightbox with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightbox.style.display === 'block') {
+        lightbox.style.display = 'none';
+      }
+    });
+  });
+</script>

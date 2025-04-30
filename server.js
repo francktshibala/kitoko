@@ -80,6 +80,9 @@ app.use('/api', apiRoutes);
 // Booking routes
 app.use("/bookings", require("./routes/bookingRoutes"));
 
+// Gallery routes
+app.use("/gallery", require("./routes/galleryRoutes"));
+
 // 404 route - must be after all other routes
 app.use(async (req, res, next) => {
   next({status: 404, message: 'Sorry, we appear to have lost that page.'});

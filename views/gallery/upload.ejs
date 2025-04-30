@@ -1,0 +1,175 @@
+<!-- Gallery Upload View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<!-- Upload Form -->
+<div class="form-container upload-form">
+  <form action="/gallery/upload" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="service_id">Service:</label>
+      <select id="service_id" name="service_id" required>
+        <option value="">Select a Service</option>
+        <% services.forEach(service => { %>
+          <option value="<%= service.service_id %>" <%= locals.service_id == service.service_id ? 'selected' : '' %>>
+            <%= service.service_name %> (<%= service.category_name %>)
+          </option>
+        <% }) %>
+      </select>
+      <p class="form-help">Select the service this image belongs to.</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="image">Image:</label>
+      <input type="file" id="image" name="image" accept="image/*" required>
+      <p class="form-help">Maximum file size: 5MB. Recommended dimensions: 1200x800px or larger. Supported formats: JPEG, PNG, GIF, WebP.</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="image_title">Image Title:</label>
+      <input type="text" id="image_title" name="image_title" required 
+             value="<%= locals.image_title ? image_title : '' %>"
+             minlength="2" maxlength="100">
+      <p class="form-help">Enter a descriptive title for this image.</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="image_description">Description (Optional):</label>
+      <textarea id="image_description" name="image_description" rows="4" 
+                maxlength="500"><%= locals.image_description ? image_description : '' %></textarea>
+      <p class="form-help">Add a description for this image (max 500 characters).</p>
+    </div>
+    
+    <div class="form-group checkbox-group">
+      <label class="checkbox-label">
+        <input type="checkbox" id="is_featured" name="is_featured" value="true">
+        Add to Featured Images
+      </label>
+      <p class="form-help">Featured images appear on the homepage and in promotional sections.</p>
+    </div>
+    
+    <div class="image-preview">
+      <h3>Image Preview</h3>
+      <div id="preview-container" class="preview-empty">
+        <p id="preview-placeholder">Image preview will be shown here</p>
+        <img id="image-preview" src="#" alt="Preview" style="display: none;">
+      </div>
+    </div>
+    
+    <div class="form-buttons">
+      <button type="submit" class="btn">Upload Image</button>
+      <a href="/gallery/management" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<!-- Upload Form Styles -->
+<style>
+  .upload-form {
+    max-width: 800px;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    width: auto;
+  }
+  
+  .image-preview {
+    margin: 2rem 0;
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .image-preview h3 {
+    margin-bottom: 1rem;
+  }
+  
+  .preview-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    border: 2px dashed #ced4da;
+    border-radius: 8px;
+  }
+  
+  #image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+</style>
+
+<!-- Image Preview Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('image-preview');
+    const previewContainer = document.getElementById('preview-container');
+    const previewPlaceholder = document.getElementById('preview-placeholder');
+    
+    // Add change event to file input
+    imageInput.addEventListener('change', function() {
+      // Check if a file was selected
+      if (this.files && this.files[0]) {
+        // Get file size
+        const fileSize = this.files[0].size / 1024 / 1024; // Convert to MB
+        
+        // Check file size (5MB max)
+        if (fileSize > 5) {
+          alert('File size exceeds 5MB limit. Please select a smaller file.');
+          this.value = ''; // Clear the file input
+          return;
+        }
+        
+        // Create file reader
+        const reader = new FileReader();
+        
+        // Set up file reader onload event
+        reader.onload = function(e) {
+          // Set preview image source
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block';
+          previewPlaceholder.style.display = 'none';
+          previewContainer.classList.remove('preview-empty');
+        }
+        
+        // Read file as data URL
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  });
+</script>
