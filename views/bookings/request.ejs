@@ -42,4 +42,132 @@
     
     <div class="form-group">
       <label for="event_date">Event Date:</label>
-      <input type="date
+      <input type="date" id="event_date" name="event_date" required
+             value="<%= locals.event_date ? event_date : '' %>"
+             min="<%= new Date().toISOString().split('T')[0] %>">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="event_start_time">Start Time:</label>
+        <input type="time" id="event_start_time" name="event_start_time" required
+               value="<%= locals.event_start_time ? event_start_time : '' %>">
+      </div>
+      
+      <div class="form-group">
+        <label for="event_end_time">End Time:</label>
+        <input type="time" id="event_end_time" name="event_end_time" required
+               value="<%= locals.event_end_time ? event_end_time : '' %>">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="event_location">Event Location:</label>
+      <input type="text" id="event_location" name="event_location" required
+             value="<%= locals.event_location ? event_location : '' %>"
+             placeholder="Full address of the event location">
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="guest_count">Number of Guests:</label>
+        <input type="number" id="guest_count" name="guest_count" required
+               value="<%= locals.guest_count ? guest_count : (service.min_guests || 0) %>"
+               min="<%= service.min_guests || 0 %>"
+               <%= service.max_guests ? 'max="' + service.max_guests + '"' : '' %>>
+      </div>
+      
+      <div class="form-group">
+        <label for="event_type">Event Type:</label>
+        <input type="text" id="event_type" name="event_type" required
+               value="<%= locals.event_type ? event_type : '' %>"
+               placeholder="Wedding, Birthday, Corporate, etc.">
+      </div>
+    </div>
+    
+    <% if (serviceOptions && serviceOptions.length > 0) { %>
+      <div class="service-options">
+        <h3>Additional Options</h3>
+        <p class="options-info">Select any additional options you would like to add to your service:</p>
+        
+        <div class="options-list">
+          <% serviceOptions.forEach(option => { %>
+            <div class="option-item">
+              <label class="option-label">
+                <input type="checkbox" name="selected_options" value="<%= option.option_id %>"
+                       <% if(locals.selected_options) { %>
+                         <% if(Array.isArray(selected_options)) { %>
+                           <%= selected_options.includes(option.option_id.toString()) ? 'checked' : '' %>
+                         <% } else { %>
+                           <%= selected_options == option.option_id ? 'checked' : '' %>
+                         <% } %>
+                       <% } %>>
+                <div class="option-details">
+                  <div class="option-header">
+                    <span class="option-name"><%= option.option_name %></span>
+                    <span class="option-price"><%= utilities.formatCurrency(option.option_price) %></span>
+                  </div>
+                  <p class="option-description"><%= option.option_description %></p>
+                </div>
+              </label>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    <% } %>
+    
+    <div class="form-group">
+      <label for="special_requests">Special Requests:</label>
+      <textarea id="special_requests" name="special_requests" rows="4"
+                placeholder="Let us know if you have any special requirements or requests"><%= locals.special_requests ? special_requests : '' %></textarea>
+    </div>
+    
+    <div class="booking-notes">
+      <h3>Important Notes</h3>
+      <ul>
+        <li>This is a booking request. Final confirmation will be sent after review.</li>
+        <li>A team member will contact you shortly to discuss details.</li>
+        <li>Prices may be adjusted based on your specific requirements.</li>
+      </ul>
+    </div>
+    
+    <div class="form-buttons">
+      <button type="submit" class="btn">Submit Booking Request</button>
+      <a href="/services/detail/<%= service.service_id %>" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('bookingRequestForm');
+  
+  if(form) {
+    form.addEventListener('submit', function(event) {
+      // Check date is in the future
+      const dateInput = document.getElementById('event_date');
+      const selectedDate = new Date(dateInput.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if(selectedDate < today) {
+        event.preventDefault();
+        alert('Please select a future date for your event.');
+        return false;
+      }
+      
+      // Check end time is after start time
+      const startTimeInput = document.getElementById('event_start_time');
+      const endTimeInput = document.getElementById('event_end_time');
+      
+      if(startTimeInput.value && endTimeInput.value) {
+        if(endTimeInput.value <= startTimeInput.value) {
+          event.preventDefault();
+          alert('End time must be after start time.');
+          return false;
+        }
+      }
+    });
+  }
+});
+</script>

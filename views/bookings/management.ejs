@@ -1,0 +1,158 @@
+<!-- Booking Management View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Bookings Management Content -->
+<div class="bookings-management">
+  <% if (accountType === 'Admin' || accountType === 'Employee') { %>
+    <div class="admin-filter">
+      <h3>Filter Bookings</h3>
+      <div class="filter-controls">
+        <select id="status-filter">
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="in progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        
+        <select id="date-filter">
+          <option value="all">All Dates</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="past">Past</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+        
+        <button id="apply-filter" class="btn btn-small">Apply</button>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (bookings && bookings.length > 0) { %>
+    <div class="bookings-list">
+      <div class="booking-headers">
+        <div class="booking-header-item">ID</div>
+        <div class="booking-header-item">Date</div>
+        <div class="booking-header-item">Customer</div>
+        <div class="booking-header-item">Services</div>
+        <div class="booking-header-item">Status</div>
+        <div class="booking-header-item">Actions</div>
+      </div>
+      
+      <% bookings.forEach(booking => { %>
+        <div class="booking-item">
+          <div class="booking-detail-col booking-id" data-label="ID">#<%= booking.booking_id %></div>
+          
+          <div class="booking-detail-col booking-date" data-label="Date">
+            <div class="primary-detail"><%= utilities.formatDate(booking.event_date) %></div>
+            <div class="secondary-detail"><%= booking.event_start_time %> - <%= booking.event_end_time %></div>
+          </div>
+          
+          <div class="booking-detail-col booking-customer" data-label="Customer">
+            <% if (accountType === 'Admin' || accountType === 'Employee') { %>
+              <div class="primary-detail"><%= booking.account_firstname %> <%= booking.account_lastname %></div>
+            <% } else { %>
+              <div class="primary-detail">Your Booking</div>
+            <% } %>
+            <div class="secondary-detail"><%= booking.event_type %></div>
+          </div>
+          
+          <div class="booking-detail-col booking-services" data-label="Services">
+            <% if (booking.services) { %>
+              <div class="primary-detail"><%= booking.services %></div>
+            <% } else { %>
+              <div class="primary-detail">Service information not available</div>
+            <% } %>
+            <div class="secondary-detail"><%= utilities.formatCurrency(booking.total_amount) %></div>
+          </div>
+          
+          <div class="booking-detail-col booking-status" data-label="Status">
+            <span class="status-badge status-<%= booking.booking_status.toLowerCase().replace(/ /g, '-') %>">
+              <%= booking.booking_status %>
+            </span>
+          </div>
+          
+          <div class="booking-detail-col booking-actions" data-label="Actions">
+            <a href="/bookings/detail/<%= booking.booking_id %>" class="btn btn-small">View</a>
+            <% if (booking.booking_status !== 'cancelled' && booking.booking_status !== 'completed') { %>
+              <a href="/bookings/cancel/<%= booking.booking_id %>" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel</a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="no-bookings">
+      <p>You don't have any bookings yet.</p>
+      <a href="/services/category/1" class="btn">Browse Services</a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('status-filter');
+    const dateFilter = document.getElementById('date-filter');
+    const applyButton = document.getElementById('apply-filter');
+    const bookingItems = document.querySelectorAll('.booking-item');
+    
+    if(applyButton) {
+      applyButton.addEventListener('click', function() {
+        const statusValue = statusFilter.value;
+        const dateValue = dateFilter.value;
+        
+        bookingItems.forEach(function(item) {
+          // Get status from the item
+          const statusElement = item.querySelector('.status-badge');
+          const status = statusElement ? statusElement.textContent.trim().toLowerCase() : '';
+          
+          // Get date from the item
+          const dateElement = item.querySelector('.booking-date .primary-detail');
+          const dateText = dateElement ? dateElement.textContent.trim() : '';
+          const bookingDate = new Date(dateText);
+          const today = new Date();
+          
+          // Apply status filter
+          let showByStatus = statusValue === 'all' || status === statusValue;
+          
+          // Apply date filter
+          let showByDate = true;
+          if (dateValue === 'upcoming') {
+            showByDate = bookingDate >= today;
+          } else if (dateValue === 'past') {
+            showByDate = bookingDate < today;
+          } else if (dateValue === 'today') {
+            showByDate = bookingDate.toDateString() === today.toDateString();
+          } else if (dateValue === 'week') {
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            showByDate = bookingDate >= weekStart && bookingDate <= weekEnd;
+          } else if (dateValue === 'month') {
+            showByDate = bookingDate.getMonth() === today.getMonth() && 
+                          bookingDate.getFullYear() === today.getFullYear();
+          }
+          
+          // Show or hide based on both filters
+          if (showByStatus && showByDate) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>

@@ -256,10 +256,13 @@ bookingController.updateBookingStatus = async function (req, res, next) {
       return res.redirect("/bookings/detail/" + booking_id)
     }
     
+    // Get customer details for email notification
+    const booking = await bookingModel.getBookingById(booking_id)
+    
     // Send status update email
     await sendBookingStatusEmail(
-      updatedBooking.account_email,
-      updatedBooking.account_firstname,
+      booking.account_email,
+      booking.account_firstname,
       booking_id,
       booking_status
     )

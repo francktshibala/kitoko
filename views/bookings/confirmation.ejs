@@ -1,0 +1,284 @@
+<!-- Booking Confirmation View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice success-notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Confirmation Content -->
+<div class="confirmation-container">
+  <div class="confirmation-header">
+    <div class="confirmation-icon">✓</div>
+    <h2>Your Booking Has Been Submitted!</h2>
+    <p>Thank you for choosing EventElegance for your special occasion.</p>
+  </div>
+  
+  <div class="confirmation-details">
+    <h3>Booking Reference: #<%= booking.booking_id %></h3>
+    <p class="booking-status">Status: <span class="status-<%= booking.booking_status.toLowerCase() %>"><%= booking.booking_status %></span></p>
+    
+    <div class="detail-section">
+      <h4>Event Details</h4>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">Date:</span>
+          <span class="detail-value"><%= utilities.formatDate(booking.event_date) %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Time:</span>
+          <span class="detail-value"><%= booking.event_start_time %> - <%= booking.event_end_time %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Location:</span>
+          <span class="detail-value"><%= booking.event_location %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Guests:</span>
+          <span class="detail-value"><%= booking.guest_count %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Event Type:</span>
+          <span class="detail-value"><%= booking.event_type %></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="detail-section">
+      <h4>Services</h4>
+      <% if (bookingServices && bookingServices.length > 0) { %>
+        <div class="services-list">
+          <% bookingServices.forEach(service => { %>
+            <div class="service-item">
+              <div class="service-header">
+                <h5><%= service.service_name %></h5>
+                <span class="service-price"><%= utilities.formatCurrency(service.price_at_booking) %></span>
+              </div>
+              
+              <% if (service.options && service.options.length > 0) { %>
+                <div class="options-list">
+                  <h6>Options:</h6>
+                  <ul>
+                    <% service.options.forEach(option => { %>
+                      <li>
+                        <span class="option-name"><%= option.option_name %></span>
+                        <span class="option-price"><%= utilities.formatCurrency(option.price_at_booking) %></span>
+                      </li>
+                    <% }) %>
+                  </ul>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p>No services found for this booking.</p>
+      <% } %>
+    </div>
+    
+    <% if (booking.special_requests) { %>
+      <div class="detail-section">
+        <h4>Special Requests</h4>
+        <p class="special-requests"><%= booking.special_requests %></p>
+      </div>
+    <% } %>
+    
+    <div class="total-section">
+      <h4>Total Amount</h4>
+      <span class="total-amount"><%= utilities.formatCurrency(booking.total_amount) %></span>
+    </div>
+  </div>
+  
+  <div class="next-steps">
+    <h3>What's Next?</h3>
+    <ol>
+      <li>Our team will review your booking request</li>
+      <li>We'll send you a confirmation email once your booking is approved</li>
+      <li>We may contact you if we need additional information</li>
+    </ol>
+    <p>You can view the status of your booking anytime by visiting your account page.</p>
+  </div>
+  
+  <div class="confirmation-actions">
+    <a href="/bookings/detail/<%= booking.booking_id %>" class="btn">View Booking Details</a>
+    <a href="/account/" class="btn btn-secondary">Go to My Account</a>
+  </div>
+</div>
+
+<!-- CSS Styles for Confirmation Page -->
+<style>
+  .confirmation-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+  }
+  
+  .confirmation-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .confirmation-icon {
+    font-size: 3rem;
+    color: var(--success-color);
+    background: #e6f7ef;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+  
+  .confirmation-details {
+    margin-bottom: 2rem;
+  }
+  
+  .booking-status {
+    margin-bottom: 1.5rem;
+  }
+  
+  .status-pending {
+    background-color: #fdcb6e;
+    color: #333;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+  
+  .detail-section {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .detail-item {
+    margin-bottom: 0.5rem;
+  }
+  
+  .detail-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+  
+  .services-list {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .service-item {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .service-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .service-header h5 {
+    margin: 0;
+  }
+  
+  .service-price {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  .options-list {
+    margin-top: 0.75rem;
+    border-top: 1px solid #eee;
+    padding-top: 0.75rem;
+  }
+  
+  .options-list h6 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .options-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .options-list li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+  
+  .special-requests {
+    font-style: italic;
+  }
+  
+  .total-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f3f4f8;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+  }
+  
+  .total-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  .next-steps {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+  
+  .next-steps ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .next-steps li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .confirmation-actions {
+      flex-direction: column;
+    }
+    
+    .confirmation-actions .btn {
+      width: 100%;
+    }
+  }
+</style>

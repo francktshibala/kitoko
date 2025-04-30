@@ -220,6 +220,29 @@ async function getFeaturedGalleryImages() {
   }
 }
 
+/* ***************************
+ *  Get service option by ID
+ * ************************** */
+async function getServiceOptionById(option_id) {
+  try {
+    const data = await pool.query(
+      `SELECT * 
+       FROM public.service_option 
+       WHERE option_id = $1`,
+      [option_id]
+    )
+    return data.rows[0]
+  } catch (error) {
+    console.error("getServiceOptionById error: " + error)
+    return null
+  }
+}
+
+// Add this function to the module.exports object in your existing service-model.js file
+// module.exports = {
+//   ...existing exports,
+//   getServiceOptionById
+// }
 module.exports = {
   getCategories,
   checkExistingCategory,
@@ -230,5 +253,6 @@ module.exports = {
   addService,
   getFeaturedServices,
   getTestimonials,
-  getFeaturedGalleryImages
+  getFeaturedGalleryImages,
+  getServiceOptionById
 }

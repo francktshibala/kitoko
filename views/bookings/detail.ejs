@@ -1,0 +1,331 @@
+<!-- Booking Detail View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Booking Details -->
+<div class="booking-detail">
+  <div class="booking-header">
+    <h2>Booking #<%= booking.booking_id %></h2>
+    <span class="booking-status status-<%= booking.booking_status.toLowerCase() %>"><%= booking.booking_status %></span>
+  </div>
+  
+  <div class="booking-info-grid">
+    <div class="booking-info-card">
+      <h3>Event Details</h3>
+      <div class="info-item">
+        <span class="info-label">Date:</span>
+        <span class="info-value"><%= utilities.formatDate(booking.event_date) %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Time:</span>
+        <span class="info-value"><%= booking.event_start_time %> - <%= booking.event_end_time %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Location:</span>
+        <span class="info-value"><%= booking.event_location %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Guest Count:</span>
+        <span class="info-value"><%= booking.guest_count %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Event Type:</span>
+        <span class="info-value"><%= booking.event_type %></span>
+      </div>
+    </div>
+    
+    <div class="booking-info-card">
+      <h3>Customer Information</h3>
+      <div class="info-item">
+        <span class="info-label">Name:</span>
+        <span class="info-value"><%= booking.account_firstname %> <%= booking.account_lastname %></span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Email:</span>
+        <span class="info-value"><%= booking.account_email %></span>
+      </div>
+      <% if (booking.account_phone) { %>
+        <div class="info-item">
+          <span class="info-label">Phone:</span>
+          <span class="info-value"><%= booking.account_phone %></span>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Services & Options -->
+  <div class="booking-services">
+    <h3>Services & Options</h3>
+    
+    <% if (bookingServices && bookingServices.length > 0) { %>
+      <% bookingServices.forEach(service => { %>
+        <div class="service-item">
+          <div class="service-main">
+            <img src="<%= service.service_image %>" alt="<%= service.service_name %>" class="service-thumbnail">
+            <div class="service-info">
+              <h4><%= service.service_name %></h4>
+              <p class="service-price"><%= utilities.formatCurrency(service.price_at_booking) %></p>
+            </div>
+          </div>
+          
+          <% if (service.options && service.options.length > 0) { %>
+            <div class="service-options">
+              <h5>Selected Options:</h5>
+              <ul>
+                <% service.options.forEach(option => { %>
+                  <li>
+                    <span class="option-name"><%= option.option_name %></span>
+                    <span class="option-price"><%= utilities.formatCurrency(option.price_at_booking) %></span>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No services found for this booking.</p>
+    <% } %>
+  </div>
+  
+  <!-- Special Requests -->
+  <% if (booking.special_requests) { %>
+    <div class="special-requests">
+      <h3>Special Requests</h3>
+      <p><%= booking.special_requests %></p>
+    </div>
+  <% } %>
+  
+  <!-- Total Amount -->
+  <div class="booking-total">
+    <h3>Total Amount</h3>
+    <p class="total-amount"><%= utilities.formatCurrency(booking.total_amount) %></p>
+  </div>
+  
+  <!-- Admin Actions -->
+  <% if (locals.accountData && (locals.accountData.account_type === 'Admin' || locals.accountData.account_type === 'Employee')) { %>
+    <div class="admin-actions">
+      <h3>Update Booking Status</h3>
+      <form action="/bookings/update-status" method="post">
+        <input type="hidden" name="booking_id" value="<%= booking.booking_id %>">
+        
+        <div class="form-group">
+          <label for="booking_status">Status:</label>
+          <select id="booking_status" name="booking_status" required>
+            <option value="pending" <%= booking.booking_status === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="confirmed" <%= booking.booking_status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+            <option value="in progress" <%= booking.booking_status === 'in progress' ? 'selected' : '' %>>In Progress</option>
+            <option value="completed" <%= booking.booking_status === 'completed' ? 'selected' : '' %>>Completed</option>
+            <option value="cancelled" <%= booking.booking_status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="btn">Update Status</button>
+      </form>
+    </div>
+  <% } %>
+  
+  <!-- Booking Actions -->
+  <div class="booking-actions">
+    <% if (booking.booking_status !== 'cancelled' && booking.booking_status !== 'completed') { %>
+      <a href="/bookings/cancel/<%= booking.booking_id %>" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel Booking</a>
+    <% } %>
+    <a href="/bookings/management" class="btn btn-secondary">Back to Bookings</a>
+  </div>
+</div>
+
+<!-- CSS Styles for Booking Detail -->
+<style>
+  .booking-detail {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .booking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .booking-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  
+  .status-pending {
+    background-color: #fdcb6e;
+    color: #333;
+  }
+  
+  .status-confirmed {
+    background-color: #00b894;
+    color: white;
+  }
+  
+  .status-cancelled {
+    background-color: #d63031;
+    color: white;
+  }
+  
+  .status-completed {
+    background-color: #0984e3;
+    color: white;
+  }
+  
+  .status-in.progress {
+    background-color: #6c5ce7;
+    color: white;
+  }
+  
+  .booking-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .booking-info-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+  
+  .info-item {
+    margin-bottom: 0.75rem;
+    display: flex;
+  }
+  
+  .info-label {
+    font-weight: bold;
+    min-width: 100px;
+  }
+  
+  .booking-services {
+    margin: 2rem 0;
+  }
+  
+  .service-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .service-main {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .service-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1rem;
+  }
+  
+  .service-options {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .service-options ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .service-options li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .special-requests {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+  
+  .booking-total {
+    text-align: right;
+    margin: 2rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .total-amount {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  .admin-actions {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+  
+  .booking-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .btn-danger {
+    background-color: var(--danger-color);
+  }
+  
+  .btn-danger:hover {
+    background-color: #b71c1c;
+  }
+  
+  @media (max-width: 768px) {
+    .booking-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .service-main {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .service-thumbnail {
+      margin-bottom: 1rem;
+      margin-right: 0;
+    }
+    
+    .booking-actions {
+      flex-direction: column;
+    }
+    
+    .booking-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
