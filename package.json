@@ -4,10 +4,10 @@
     "description": "A comprehensive event planning and catering service platform",
     "main": "server.js",
     "scripts": {
-      "start": "node server.js",
-      "dev": "nodemon server.js",
-      "build": "cd frontend && pnpm build"
-    },
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm install && node init-database.js"
+},
     "author": "",
     "license": "ISC",
     "dependencies": {
