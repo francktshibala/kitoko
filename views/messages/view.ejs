@@ -1,0 +1,228 @@
+<!-- views/messages/view.ejs -->
+<!-- View Message Thread -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Message Thread Content -->
+<div class="thread-container">
+  <div class="thread-header">
+    <h2><%= thread[0].message_subject %></h2>
+    <a href="/messages/inbox" class="btn btn-small">Back to Inbox</a>
+  </div>
+  
+  <div class="message-thread">
+    <% thread.forEach((message, index) => { 
+      const isAdmin = message.account_type === 'Admin' || message.account_type === 'Employee';
+      const sender = isAdmin 
+        ? `${message.account_firstname} ${message.account_lastname} (Staff)`
+        : message.guest_name || `${message.account_firstname} ${message.account_lastname}`;
+    %>
+      <div class="message-bubble <%= isAdmin ? 'admin-message' : 'user-message' %>">
+        <div class="message-header">
+          <span class="message-sender"><%= sender %></span>
+          <span class="message-date"><%= utilities.formatDate(message.created_at) %></span>
+        </div>
+        
+        <div class="message-content">
+          <%= message.message_body %>
+        </div>
+        
+        <% if (message.message_id === parseInt(original_message_id) && !message.is_read) { %>
+          <div class="message-status">
+            <span class="status-badge unread">New</span>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+  
+  <!-- Reply Form -->
+  <div class="reply-form">
+    <h3>Reply to this Message</h3>
+    <form action="/messages/reply" method="post">
+      <input type="hidden" name="parent_id" value="<%= thread[0].message_id %>">
+      
+      <div class="form-group">
+        <label for="message_body">Your Reply:</label>
+        <textarea id="message_body" name="message_body" rows="4" required></textarea>
+      </div>
+      
+      <button type="submit" class="btn">Send Reply</button>
+    </form>
+  </div>
+  
+  <!-- Contact Information -->
+  <div class="contact-info">
+    <h3>Contact Information</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Name:</span>
+        <span class="info-value">
+          <%= thread[0].guest_name || `${thread[0].account_firstname} ${thread[0].account_lastname}` %>
+        </span>
+      </div>
+      
+      <div class="info-item">
+        <span class="info-label">Email:</span>
+        <span class="info-value">
+          <%= thread[0].guest_email || thread[0].account_email %>
+        </span>
+      </div>
+      
+      <% if (thread[0].guest_phone || thread[0].account_phone) { %>
+        <div class="info-item">
+          <span class="info-label">Phone:</span>
+          <span class="info-value">
+            <%= thread[0].guest_phone || thread[0].account_phone %>
+          </span>
+        </div>
+      <% } %>
+      
+      <div class="info-item">
+        <span class="info-label">Received:</span>
+        <span class="info-value">
+          <%= utilities.formatDate(thread[0].created_at) %>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .thread-container {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .thread-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-300);
+  }
+  
+  .thread-header h2 {
+    margin: 0;
+  }
+  
+  .message-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .message-bubble {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    position: relative;
+  }
+  
+  .user-message {
+    background-color: var(--gray-100);
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  .admin-message {
+    background-color: #f0f4ff;
+    border-left: 4px solid var(--accent-color);
+    margin-left: 2rem;
+  }
+  
+  .message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
+  .message-sender {
+    font-weight: bold;
+  }
+  
+  .message-date {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+  }
+  
+  .message-content {
+    white-space: pre-line;
+    line-height: 1.6;
+  }
+  
+  .message-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }
+  
+  .status-badge.unread {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .reply-form {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: var(--gray-100);
+    border-radius: var(--border-radius);
+  }
+  
+  .contact-info {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-300);
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .info-item {
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-label {
+    font-weight: bold;
+    margin-right: 0.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    .thread-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .message-header {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .admin-message {
+      margin-left: 0;
+    }
+  }
+</style>

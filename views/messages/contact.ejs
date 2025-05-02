@@ -1,0 +1,159 @@
+<!-- views/messages/contact.ejs -->
+<!-- Contact Form View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Error Block -->
+<% if (errors) { %>
+  <div class="notice error-notice">
+    <ul>
+      <% errors.array().forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+<div class="contact-container">
+  <div class="contact-info">
+    <h2>Get In Touch</h2>
+    <p>Have questions about our services or need to discuss your event details? Fill out the form and we'll get back to you as soon as possible.</p>
+    
+    <div class="contact-details">
+      <div class="contact-item">
+        <span class="contact-icon">📞</span>
+        <div>
+          <h3>Phone</h3>
+          <p>(385) 296-5634</p>
+        </div>
+      </div>
+      
+      <div class="contact-item">
+        <span class="contact-icon">✉️</span>
+        <div>
+          <h3>Email</h3>
+          <p>info@eventkitoko.com</p>
+        </div>
+      </div>
+      
+      <div class="contact-item">
+        <span class="contact-icon">📍</span>
+        <div>
+          <h3>Address</h3>
+          <p>123 Event Street, Sandy, UT 84093</p>
+        </div>
+      </div>
+      
+      <div class="contact-item">
+        <span class="contact-icon">⏱️</span>
+        <div>
+          <h3>Business Hours</h3>
+          <p>Monday - Friday: 9 AM - 6 PM</p>
+          <p>Saturday: 10 AM - 4 PM</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="contact-form-container">
+    <h2>Send Us a Message</h2>
+    <form id="contactForm" action="/messages/contact" method="post">
+      <% if (!locals.loggedin) { %>
+        <div class="form-group">
+          <label for="guest_name">Your Name:</label>
+          <input type="text" id="guest_name" name="guest_name" required
+                 value="<%= locals.guest_name ? guest_name : '' %>">
+        </div>
+        
+        <div class="form-group">
+          <label for="guest_email">Email Address:</label>
+          <input type="email" id="guest_email" name="guest_email" required
+                 value="<%= locals.guest_email ? guest_email : '' %>">
+        </div>
+      <% } %>
+      
+      <div class="form-group">
+        <label for="guest_phone">Phone Number (Optional):</label>
+        <input type="tel" id="guest_phone" name="guest_phone" 
+               placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+               value="<%= locals.guest_phone ? guest_phone : '' %>">
+        <p class="form-help">Format: 123-456-7890</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="message_subject">Subject:</label>
+        <input type="text" id="message_subject" name="message_subject" required
+               value="<%= locals.message_subject ? message_subject : '' %>">
+      </div>
+      
+      <div class="form-group">
+        <label for="message_body">Message:</label>
+        <textarea id="message_body" name="message_body" rows="6" required><%= locals.message_body ? message_body : '' %></textarea>
+      </div>
+      
+      <button type="submit" class="btn">Send Message</button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  
+  .contact-info {
+    background-color: var(--gray-100);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+  }
+  
+  .contact-details {
+    margin-top: 2rem;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+  
+  .contact-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .contact-item h3 {
+    margin-bottom: 0.25rem;
+    font-size: 1.1rem;
+  }
+  
+  .contact-item p {
+    margin: 0;
+    color: var(--gray-600);
+  }
+  
+  .contact-form-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+  }
+  
+  @media (max-width: 768px) {
+    .contact-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

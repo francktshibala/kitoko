@@ -40,3 +40,22 @@ CREATE INDEX IF NOT EXISTS idx_booking_service_booking_id ON public.booking_serv
 CREATE INDEX IF NOT EXISTS idx_booking_service_service_id ON public.booking_service(service_id);
 CREATE INDEX IF NOT EXISTS idx_booking_option_booking_service_id ON public.booking_option(booking_service_id);
 CREATE INDEX IF NOT EXISTS idx_booking_option_option_id ON public.booking_option(option_id);
+
+-- Create message table
+CREATE TABLE IF NOT EXISTS public.message (
+    message_id SERIAL PRIMARY KEY,
+    account_id INTEGER REFERENCES public.account(account_id) ON DELETE SET NULL,
+    parent_id INTEGER REFERENCES public.message(message_id) ON DELETE SET NULL,
+    guest_name VARCHAR(100),
+    guest_email VARCHAR(100),
+    guest_phone VARCHAR(15),
+    message_subject VARCHAR(100) NOT NULL,
+    message_body TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS idx_message_account_id ON public.message(account_id);
+CREATE INDEX IF NOT EXISTS idx_message_parent_id ON public.message(parent_id);
+CREATE INDEX IF NOT EXISTS idx_message_is_read ON public.message(is_read);

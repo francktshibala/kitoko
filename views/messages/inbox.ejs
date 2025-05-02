@@ -1,0 +1,326 @@
+<!-- views/messages/inbox.ejs -->
+<!-- Messages Inbox View -->
+<h1><%= title %></h1>
+
+<!-- Message Block -->
+<% if (messages && messages.length > 0) { %>
+  <div class="notice">
+    <% messages.forEach(msg => { %>
+      <p><%= msg %></p>
+    <% }) %>
+  </div>
+<% } %>
+
+<!-- Inbox Content -->
+<div class="inbox-container">
+  <div class="inbox-header">
+    <h2>Message Threads</h2>
+    <div class="inbox-controls">
+      <button id="refreshInbox" class="btn btn-small">Refresh</button>
+      <select id="filterSelect" class="filter-select">
+        <option value="all">All Messages</option>
+        <option value="unread">Unread Messages</option>
+        <option value="read">Read Messages</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="message-list">
+    <% if (threads && threads.length > 0) { %>
+      <div class="list-header">
+        <div class="header-status">Status</div>
+        <div class="header-sender">Sender</div>
+        <div class="header-subject">Subject</div>
+        <div class="header-date">Date</div>
+        <div class="header-actions">Actions</div>
+      </div>
+      
+      <% threads.forEach(thread => { 
+        // Sort thread by date, newest first
+        thread.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        // Get latest message in thread
+        const latestMessage = thread[0];
+        
+        // Check if any message in thread is unread
+        const hasUnread = thread.some(msg => !msg.is_read);
+        
+        // Get root message (original message)
+        const rootMessage = thread.find(msg => !msg.parent_id) || thread[0];
+      %>
+        <div class="message-item <%= hasUnread ? 'unread' : 'read' %>" data-id="<%= rootMessage.message_id %>">
+          <div class="message-status">
+            <span class="status-indicator <%= hasUnread ? 'unread' : 'read' %>"></span>
+            <span class="status-text"><%= hasUnread ? 'Unread' : 'Read' %></span>
+          </div>
+          
+          <div class="message-sender">
+            <% if (rootMessage.account_id) { %>
+              <%= rootMessage.account_firstname %> <%= rootMessage.account_lastname %>
+            <% } else { %>
+              <%= rootMessage.guest_name %>
+            <% } %>
+          </div>
+          
+          <div class="message-subject">
+            <%= rootMessage.message_subject %>
+            <span class="message-count"><%= thread.length > 1 ? `(${thread.length})` : '' %></span>
+          </div>
+          
+          <div class="message-date">
+            <%= utilities.formatDate(latestMessage.created_at) %>
+          </div>
+          
+          <div class="message-actions">
+            <a href="/messages/view/<%= rootMessage.message_id %>" class="btn btn-small">View</a>
+            <button class="btn btn-small btn-secondary toggle-read-btn" 
+                    data-id="<%= rootMessage.message_id %>" 
+                    data-read="<%= hasUnread ? 'false' : 'true' %>">
+              Mark as <%= hasUnread ? 'Read' : 'Unread' %>
+            </button>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="empty-inbox">
+        <p>No messages found.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<style>
+  .inbox-container {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  
+  .inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-300);
+  }
+  
+  .inbox-header h2 {
+    margin: 0;
+  }
+  
+  .inbox-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .filter-select {
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--gray-300);
+  }
+  
+  .list-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 2fr 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    font-weight: bold;
+    border-bottom: 1px solid var(--gray-300);
+  }
+  
+  .message-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 2fr 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--gray-300);
+    align-items: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  .message-item:hover {
+    background-color: var(--gray-100);
+  }
+  
+  .message-item.unread {
+    background-color: rgba(108, 92, 231, 0.05);
+  }
+  
+  .message-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  
+  .status-indicator.unread {
+    background-color: var(--primary-color);
+  }
+  
+  .status-indicator.read {
+    background-color: var(--gray-400);
+  }
+  
+  .status-text {
+    font-size: 0.8rem;
+    color: var(--gray-600);
+  }
+  
+  .message-count {
+    font-size: 0.8rem;
+    color: var(--gray-600);
+    margin-left: 0.5rem;
+  }
+  
+  .message-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .empty-inbox {
+    padding: 3rem;
+    text-align: center;
+    color: var(--gray-600);
+  }
+  
+  @media (max-width: 992px) {
+    .list-header {
+      display: none;
+    }
+    
+    .message-item {
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 0.5rem;
+    }
+    
+    .message-status, .message-sender, .message-subject, .message-date {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+    
+    .message-sender:before {
+      content: 'From: ';
+      font-weight: bold;
+    }
+    
+    .message-subject:before {
+      content: 'Subject: ';
+      font-weight: bold;
+    }
+    
+    .message-date:before {
+      content: 'Date: ';
+      font-weight: bold;
+    }
+    
+    .message-actions {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle filter select change
+    const filterSelect = document.getElementById('filterSelect');
+    if (filterSelect) {
+      filterSelect.addEventListener('change', function() {
+        const filter = this.value;
+        const messageItems = document.querySelectorAll('.message-item');
+        
+        messageItems.forEach(item => {
+          if (filter === 'all') {
+            item.style.display = '';
+          } else if (filter === 'unread' && item.classList.contains('unread')) {
+            item.style.display = '';
+          } else if (filter === 'read' && !item.classList.contains('unread')) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    }
+    
+    // Handle refresh button click
+    const refreshButton = document.getElementById('refreshInbox');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', function() {
+        window.location.reload();
+      });
+    }
+    
+    // Handle mark as read/unread buttons
+    const toggleReadBtns = document.querySelectorAll('.toggle-read-btn');
+    toggleReadBtns.forEach(btn => {
+      btn.addEventListener('click', async function() {
+        const messageId = this.getAttribute('data-id');
+        const isRead = this.getAttribute('data-read');
+        
+        try {
+          const response = await fetch('/messages/toggle-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message_id: messageId,
+              is_read: isRead
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // Update UI
+            const messageItem = document.querySelector(`.message-item[data-id="${messageId}"]`);
+            const statusIndicator = messageItem.querySelector('.status-indicator');
+            const statusText = messageItem.querySelector('.status-text');
+            
+            if (data.new_status) {
+              // Marked as read
+              messageItem.classList.remove('unread');
+              messageItem.classList.add('read');
+              statusIndicator.classList.remove('unread');
+              statusIndicator.classList.add('read');
+              statusText.textContent = 'Read';
+              this.textContent = 'Mark as Unread';
+              this.setAttribute('data-read', 'true');
+            } else {
+              // Marked as unread
+              messageItem.classList.remove('read');
+              messageItem.classList.add('unread');
+              statusIndicator.classList.remove('read');
+              statusIndicator.classList.add('unread');
+              statusText.textContent = 'Unread';
+              this.textContent = 'Mark as Read';
+              this.setAttribute('data-read', 'false');
+            }
+          } else {
+            alert('Error updating message status. Please try again.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error updating message status. Please try again.');
+        }
+      });
+    });
+  });
+</script>

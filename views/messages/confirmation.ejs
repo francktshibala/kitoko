@@ -1,0 +1,68 @@
+<!-- views/messages/confirmation.ejs (continued) -->
+<li>If you have an account with us, you can also check your message history there.</li>
+</ul>
+</div>
+
+<div class="confirmation-actions">
+<a href="/" class="btn">Return to Home</a>
+<a href="/services/category/1" class="btn btn-secondary">Browse Our Services</a>
+</div>
+</div>
+
+<style>
+.confirmation-container {
+background: white;
+border-radius: var(--border-radius);
+box-shadow: var(--shadow-md);
+padding: 2rem;
+max-width: 800px;
+margin: 2rem auto;
+text-align: center;
+}
+
+.confirmation-icon {
+font-size: 3rem;
+color: var(--success-color);
+background: #e6f7ef;
+width: 80px;
+height: 80px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 1rem;
+}
+
+.confirmation-details {
+text-align: left;
+margin: 2rem 0;
+padding: 1.5rem;
+background: var(--gray-100);
+border-radius: var(--border-radius);
+}
+
+.confirmation-details ul {
+padding-left: 1.5rem;
+}
+
+.confirmation-details li {
+margin-bottom: 0.5rem;
+}
+
+.confirmation-actions {
+display: flex;
+justify-content: center;
+gap: 1rem;
+margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+.confirmation-actions {
+  flex-direction: column;
+}
+
+.confirmation-actions .btn {
+  width: 100%;
+}
+}
+</style>
