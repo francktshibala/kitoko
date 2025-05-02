@@ -347,8 +347,8 @@ async function sendBookingConfirmationEmail(to, name, booking_id, service_name) 
         <p>Service: ${service_name}</p>
         <p>Our team will review your booking request and get back to you shortly to confirm the details.</p>
         <p>You can view your booking details by logging into your account and visiting the bookings section.</p>
-        <p>Thank you for choosing EventElegance for your special occasion!</p>
-        <p>Best regards,<br>EventElegance Team</p>
+        <p>Thank you for choosing EventKitoko for your special occasion!</p>
+        <p>Best regards,<br>EventKitoko Team</p>
       `
     }
     
@@ -386,7 +386,7 @@ async function sendBookingStatusEmail(to, name, booking_id, status) {
         <p>Your booking (Reference #${booking_id}) has been updated to <strong>${status}</strong>.</p>
         <p>You can view your booking details by logging into your account and visiting the bookings section.</p>
         <p>If you have any questions, please don't hesitate to contact us.</p>
-        <p>Best regards,<br>EventElegance Team</p>
+        <p>Best regards,<br>EventKitoko Team</p>
       `
     }
     
